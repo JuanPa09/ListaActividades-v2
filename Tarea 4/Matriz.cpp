@@ -51,6 +51,7 @@ class Matriz{
                 return day;
             }else{
                 nodoMatriz *temp = root;
+                nodoMatriz *ant = root;
                 temp=temp->siguiente;
                 while(temp!=NULL){
                     if(temp->index<miindice&&(temp->siguiente==NULL||temp->siguiente->index>miindice)){
@@ -65,6 +66,15 @@ class Matriz{
                         return temp;
                         break;
                     }
+
+                    if (temp->index>miindice)
+                    {
+                        day->siguiente=temp;
+                        ant->siguiente=day;
+                        return day;
+                        break;
+                    }
+                    ant=temp;
                     temp=temp->siguiente;
                 }
 
@@ -148,27 +158,18 @@ class Matriz{
         if(fila!=NULL && columna ==NULL ){
         //Existe la fila pero no la columna
             nodoMatriz *column = insertarOrdenado_Columna(dia);
-            //column->abajo=nuevo;
-            //fila->siguiente=nuevo;
-            insertarActividad(fila,columna,nuevo);
+            insertarActividad(fila,column,nuevo);
         }else if(fila==NULL && columna !=NULL){
         //Existe la columna pero no la fila
             nodoMatriz *row = insertarOrdenado_Fila(hora);
-            //columna->abajo=nuevo;
-            //row->siguiente=nuevo;
             insertarActividad(row,columna,nuevo);
         }else if(fila==NULL && columna == NULL){
         //No existe ninguna
             nodoMatriz *row = insertarOrdenado_Fila(hora);
             nodoMatriz *column = insertarOrdenado_Columna(dia);
-            //row->siguiente=nuevo;
-            //column->abajo=nuevo;
             insertarActividad(row,column,nuevo);
         }else if(fila!=NULL && columna != NULL){
         //Los dos existen
-            
-            //fila->siguiente=nuevo;
-            //columna->abajo=nuevo;
             insertarActividad(fila,columna,nuevo);
         }else{
         }
@@ -178,50 +179,50 @@ class Matriz{
     void insertarActividad(nodoMatriz *fila, nodoMatriz *columna , nodoMatriz *nuevo){
         nodoMatriz *temp = columna;
         nodoMatriz *ant = columna;
-        while (temp!=NULL)
+        if (temp->abajo!=NULL)
         {
-            if (temp->hora>nuevo->hora)
-            {
-                nuevo->abajo=temp;
-                ant->abajo=nuevo;
-                break;
-            }else if(temp->hora<nuevo->hora&&(temp->abajo==NULL||temp->abajo->hora>nuevo->hora)){
-                nuevo->abajo=temp->abajo;
-                temp->abajo=nuevo;
-                break;
+           
+            while (temp!=NULL)
+            {          
+                if (temp->hora>nuevo->hora)
+                {
+                    nuevo->abajo=temp;
+                    ant->abajo=nuevo;
+                    break;
+                }else if(temp->hora<nuevo->hora&&(temp->abajo==NULL||temp->abajo->hora>nuevo->hora)){
+                    nuevo->abajo=temp->abajo;
+                    temp->abajo=nuevo;
+                    break;
+                }
+                
+                ant=temp->abajo;
+                temp=temp->abajo;
             }
-            
-            ant=temp;
-            temp=temp->abajo;
-        }
+        }else{temp->abajo=nuevo;}   
         
-
         temp = fila;
         ant = fila;
-
-        while (temp!=NULL)
+        if (temp->siguiente!=NULL)
         {
+        
             while (temp!=NULL)
-        {
-            if (temp->index>nuevo->index)
             {
-                nuevo->siguiente=temp;
-                ant->siguiente=nuevo;
-                break;
-            }else if(temp->index<nuevo->index&&(temp->siguiente==NULL||temp->siguiente->index>nuevo->index)){
-                nuevo->siguiente=temp->siguiente;
-                temp->siguiente=nuevo;
-                break;
+                if (temp->index>nuevo->index)
+                {
+                    nuevo->siguiente=temp;
+                    ant->siguiente=nuevo;
+                    break;
+                }else if(temp->index<nuevo->index&&(temp->siguiente==NULL||temp->siguiente->index>nuevo->index)){
+                    nuevo->siguiente=temp->siguiente;
+                    temp->siguiente=nuevo;
+                    break;
+                }
+                
+                ant=temp;
+                temp=temp->siguiente;
             }
-            
-            ant=temp;
-            temp=temp->siguiente;
-        }
-        }
         
-        
-        
-
+        }else{temp->siguiente=nuevo;}
     }
 
     void imprimirDias(){
@@ -257,13 +258,31 @@ class Matriz{
             while (aux!=NULL)
             {
                 cout<<to_string(aux->hora)+": "+aux->actividad+"\n";
-                aux=aux->siguiente;
+                aux=aux->abajo;
             }
             
 
             temp=temp->siguiente;
         }
         
+    }
+
+    void imprimirActividadesDia(string dia){
+        nodoMatriz *temp = root;
+        while (temp!=NULL)
+        {
+            if(temp->dia==dia){
+                nodoMatriz *aux = temp->abajo;
+                while (aux!=NULL)
+                {
+                    cout<<to_string(aux->hora)+": "+aux->actividad+"\n";
+                    aux=aux->abajo;
+                }
+                return;
+            }
+            temp=temp->siguiente;
+        }
+        cout<<"No existen actividades para ese dia\n";
     }
 
 
